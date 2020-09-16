@@ -5,7 +5,10 @@ RUN apt-get update && apt-get install -y \
       git \
       fish
 
-RUN apt-get update && apt-get install -y libzip-dev libicu-dev && docker-php-ext-install pdo zip intl
+RUN apt-get update && apt-get install -y libzip-dev libicu-dev && docker-php-ext-install pdo zip intl opcache
+
+# Support de apcu
+RUN pecl install apcu && docker-php-ext-enable apcu
 
 # Support de redis
 RUN pecl install redis && docker-php-ext-enable redis
@@ -32,7 +35,6 @@ RUN apt-get update && apt-get install -y ffmpeg
 # Xdebug (disabled by default, but installed if required)
 RUN pecl install xdebug-2.9.7 && docker-php-ext-enable xdebug
 ADD xdebug.ini /usr/local/etc/php/conf.d/
-RUN printf '%s%s' ";" "$(cat /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini)" > "/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini"
 
 WORKDIR /var/www
 
