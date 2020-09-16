@@ -19,9 +19,6 @@ RUN docker-php-ext-install mysqli pdo_mysql
 # Imagick
 RUN apt-get update && apt-get install -y libmagickwand-dev --no-install-recommends && pecl install imagick && docker-php-ext-enable imagick
 
-# Xdebug
-RUN pecl install xdebug-2.8.1 && docker-php-ext-enable xdebug
-
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
 
@@ -29,9 +26,14 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ 
 RUN wget https://get.symfony.com/cli/installer -O - | bash && \
   mv /root/.symfony/bin/symfony /usr/local/bin/symfony
 
-ADD xdebug.ini /usr/local/etc/php/conf.d/
-
 # Pour la récupération des durées
 RUN apt-get update && apt-get install -y ffmpeg
+
+# Xdebug (disabled by default, but installed if required)
+RUN pecl install xdebug-2.9.7 && docker-php-ext-enable xdebug
+ADD xdebug.ini /usr/local/etc/php/conf.d/
+RUN printf '%s%s' ";" "$(cat /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini)" > "/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini"
+
+WORKDIR /var/www
 
 EXPOSE 9000
