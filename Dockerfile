@@ -1,5 +1,7 @@
 FROM php:7.4-fpm
 
+ENV PHP_SECURITY_CHECHER_VERSION=1.0.0
+
 RUN apt-get update && apt-get install -y \
       wget \
       git \
@@ -28,6 +30,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ 
 # Symfony tool
 RUN wget https://get.symfony.com/cli/installer -O - | bash && \
   mv /root/.symfony/bin/symfony /usr/local/bin/symfony
+
+# Security checker tool
+RUN curl -L https://github.com/fabpot/local-php-security-checker/releases/download/v${PHP_SECURITY_CHECHER_VERSION}/local-php-security-checker_${PHP_SECURITY_CHECHER_VERSION}_linux_$(dpkg --print-architecture) --output /usr/local/bin/local-php-security-checker && \
+  chmod +x /usr/local/bin/local-php-security-checker
 
 # Pour la récupération des durées
 RUN apt-get update && apt-get install -y ffmpeg
