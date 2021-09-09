@@ -1,5 +1,17 @@
 FROM php:7.4-fpm
 
+# Valeur genre @composer pour le latest: https://github.com/mlocati/docker-php-extension-installer#installing-composer 
+ARG COMPOSER='@composer'
+# Valeur pour latest sinon voir: https://github.com/mlocati/docker-php-extension-installer#installing-specific-versions-of-an-extension
+ARG ZIP='zip'
+ARG INTL='intl'
+ARG OPCACHE='opcache'
+ARG APCU='apcu'
+ARG REDIS='redis'
+ARG PDO_PGSQL='pdo_pgsql'
+ARG IMAGICK='imagick'
+ARG XDEBUG=''
+
 ENV PHP_SECURITY_CHECHER_VERSION=1.0.0
 
 RUN apt-get update && apt-get install -y \
@@ -7,25 +19,19 @@ RUN apt-get update && apt-get install -y \
       git \
       fish
 
-RUN apt-get update && apt-get install -y libzip-dev libicu-dev && docker-php-ext-install pdo zip intl opcache
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
-# Support de apcu
-RUN pecl install apcu && docker-php-ext-enable apcu
+RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
+    install-php-extensions ${ZIP} ${INTL} ${OPCACHE} ${APCU} ${REDIS} ${PDO_PGSQL} ${MYSQLI} ${PDO_MYSQL} ${IMAGICK} ${COMPOSER}
 
-# Support de redis
-RUN pecl install redis && docker-php-ext-enable redis
-
-# Support de Postgre
-RUN apt-get update && apt-get install -y libpq-dev && docker-php-ext-install pdo_pgsql
-
-# Support de MySQL (pour la migration)
-RUN docker-php-ext-install mysqli pdo_mysql
-
-# Imagick
-RUN apt-get update && apt-get install -y libmagickwand-dev --no-install-recommends && pecl install imagick && docker-php-ext-enable imagick
-
-# Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
+RUN [ ! -z "${XDEBUG}" ] && install-php-extensions ${XDEBUG} && \
+    echo "xdebug.remote_enable=On\n\
+xdebug.remote_connect_back=On\n\
+xdebug.remote_host=${WWW_XDEBUG_HOST}\n\
+xdebug.remote_port=${WWW_XDEBUG_PORT}\n\
+xdebug.idekey=${WWW_XDEBUG_IDE}\n\
+xdebug.profiler_enable_trigger=1\n\
+xdebug.profiler_output_dir = /var/www/xdebug_www_profiler_output" > /usr/local/etc/php/conf.d/xdebug.ini || echo "[INFO] XDEBUG not installed"
 
 # Symfony tool
 RUN wget https://get.symfony.com/cli/installer -O - | bash && \
@@ -37,10 +43,6 @@ RUN curl -L https://github.com/fabpot/local-php-security-checker/releases/downlo
 
 # Pour la récupération des durées
 RUN apt-get update && apt-get install -y ffmpeg
-
-# Xdebug (disabled by default, but installed if required)
-# RUN pecl install xdebug-2.9.7 && docker-php-ext-enable xdebug
-# ADD xdebug.ini /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www
 
