@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -y ffmpeg
 
 # Xdebug (disabled by default, but installed if required)
 # RUN pecl install xdebug-2.9.7 && docker-php-ext-enable xdebug
-# ADD xdebug.ini /usr/local/etc/php/conf.d/
+ADD php.ini /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www
 
