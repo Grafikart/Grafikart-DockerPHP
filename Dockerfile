@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.1-fpm
 
 ENV PHP_SECURITY_CHECHER_VERSION=1.0.0
 
