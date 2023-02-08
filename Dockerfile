@@ -29,7 +29,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ 
 
 # Symfony tool
 RUN wget https://get.symfony.com/cli/installer -O - | bash && \
-  mv /root/.symfony/bin/symfony /usr/local/bin/symfony
+  mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
 
 # Security checker tool
 RUN curl -L https://github.com/fabpot/local-php-security-checker/releases/download/v${PHP_SECURITY_CHECHER_VERSION}/local-php-security-checker_${PHP_SECURITY_CHECHER_VERSION}_linux_$(dpkg --print-architecture) --output /usr/local/bin/local-php-security-checker && \
